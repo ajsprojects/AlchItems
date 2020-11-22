@@ -1,2 +1,1 @@
-# Example
-An example greeter plugin
+# RuneLite Plugin that shows you the best items to alch!
