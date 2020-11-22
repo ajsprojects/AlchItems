@@ -10,7 +10,7 @@ repositories {
 	mavenCentral()
 }
 
-def runeLiteVersion = '1.6.26.1'
+def runeLiteVersion = '1.6.31'
 
 dependencies {
 	compileOnly group: 'net.runelite', name:'client', version: runeLiteVersion
@@ -23,6 +23,7 @@ dependencies {
 	testImplementation group: 'net.runelite', name:'client', version: runeLiteVersion, {
 		exclude group: 'ch.qos.logback', module: 'logback-classic'
 	}
+	compile group: 'net.sourceforge.htmlunit', name: 'htmlunit', version: '2.45.0'
 }
 
 group = 'com.example'
