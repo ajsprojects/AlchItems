@@ -34,6 +34,8 @@ public class AlchItemsPanel extends PluginPanel {
     @Inject
     Utilities utilities;
 
+    ExecutorService executorService;
+
     public void init() throws Exception {
         setLayout(new BorderLayout());
         setBackground(ColorScheme.DARK_GRAY_COLOR);
@@ -65,7 +67,8 @@ public class AlchItemsPanel extends PluginPanel {
 
     public JPanel buildSpinner() {
         JPanel panel = new JPanel();
-        JSpinner spinner = new JSpinner();
+        SpinnerModel sm = new SpinnerNumberModel(limit, 0, 500, 1); //default value,lower bound,upper bound,increment by
+        JSpinner spinner = new JSpinner(sm);
         spinner.setValue(limit);
         spinner.setSize(80,20);
         JLabel tabLabel = new JLabel("Limit results to ");
@@ -116,7 +119,7 @@ public class AlchItemsPanel extends PluginPanel {
         itemsContainerPanel.add(itemsPanel);
         updateUI();
 
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             try {
                 getItems();
@@ -152,13 +155,12 @@ public class AlchItemsPanel extends PluginPanel {
     }
 
     private JPanel buildItems(List<AlchItem> alchItemsList, String sortBy, int limit) {
-        System.out.println("List size: " + alchItemsList.size() + " | Display limit: " + limit);
         JPanel itemListPanel = buildBasePanel();
         if(alchItemsList == null || alchItemsList.isEmpty()) {
             itemListPanel.add(buildErrorItem());
             return itemListPanel;
         }
-
+        System.out.println("List size: " + alchItemsList.size() + " | Display limit: " + limit);
         if(sortBy.equalsIgnoreCase("profit") || sortBy.equalsIgnoreCase("f2p items")) {
             alchItemsList = utilities.sortItemsByProfit(alchItemsList);
         }

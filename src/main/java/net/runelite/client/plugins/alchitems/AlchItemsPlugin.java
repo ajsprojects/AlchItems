@@ -5,7 +5,6 @@ import net.runelite.api.Client;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.info.InfoPanel;
 import net.runelite.client.ui.ClientToolbar;
 import net.runelite.client.ui.NavigationButton;
 import net.runelite.client.util.ImageUtil;
@@ -23,18 +22,17 @@ public class AlchItemsPlugin extends Plugin
     @Inject
     private Client client;
 
-    private NavigationButton navButton;
-
     @Inject
     private ClientToolbar clientToolbar;
 
     private AlchItemsPanel panel;
+    private NavigationButton navButton;
 
     @Override
     protected void startUp() throws Exception {
         final BufferedImage icon = ImageUtil.getResourceStreamFromClass(getClass(), "icon.png");
-
         final AlchItemsPanel panel = injector.getInstance(AlchItemsPanel.class);
+
         panel.init();
 
         navButton = NavigationButton.builder()
@@ -49,6 +47,8 @@ public class AlchItemsPlugin extends Plugin
 
     @Override
     protected void shutDown() throws Exception {
+        panel.executorService.shutdownNow();
+        panel.executorService = null;
         clientToolbar.removeNavigation(navButton);
     }
 
