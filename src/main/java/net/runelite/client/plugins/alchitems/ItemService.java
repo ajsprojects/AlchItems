@@ -50,6 +50,7 @@ public class ItemService {
         } catch (Exception exception) {
             throw(exception);
         }
+        webClient.close();
         return results;
     }
 
