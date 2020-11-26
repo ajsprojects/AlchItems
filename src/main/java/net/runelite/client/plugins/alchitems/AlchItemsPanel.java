@@ -185,7 +185,7 @@ public class AlchItemsPanel extends PluginPanel {
     }
 
     private JPanel buildItem(AlchItem alchItem) {
-        final Color hoverColor = ColorScheme.LIGHT_GRAY_COLOR;
+        final Color hoverColor = ColorScheme.MEDIUM_GRAY_COLOR;
 
         JPanel container = new JPanel();
         container.setBackground(ColorScheme.DARKER_GRAY_COLOR);
