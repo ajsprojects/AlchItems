@@ -1,5 +1,6 @@
 package net.runelite.client.plugins.alchitems;
 
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
@@ -11,10 +12,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-
+@Slf4j
 public class AlchItemsPanel extends PluginPanel {
 
     private String sortBy = "profit";
@@ -25,18 +24,15 @@ public class AlchItemsPanel extends PluginPanel {
     private JButton refreshButton;
     private JPanel comboBox;
     private int limit = 50;
-
     private List<AlchItem> alchItemsList;
-
-    @Inject
-    ItemService itemService;
 
     @Inject
     Utilities utilities;
 
-    ExecutorService executorService;
+    @Inject
+    AlchItemsPlugin plugin;
 
-    public void init() throws Exception {
+    public void init() {
         setLayout(new BorderLayout());
         setBackground(ColorScheme.DARK_GRAY_COLOR);
         setBorder(new EmptyBorder(8, 8, 8, 8)); //DO NOT CHANGE
@@ -51,7 +47,7 @@ public class AlchItemsPanel extends PluginPanel {
         comboBox = buildComboBox();
         spinner = buildSpinner();
         itemsPanel = new JPanel();
-        fetchItemsHandlerASync();
+        plugin.fetchItemsHandlerASync();
         buildPanels();
     }
 
@@ -76,10 +72,9 @@ public class AlchItemsPanel extends PluginPanel {
         panel.add(tabLabel, BorderLayout.NORTH);
         panel.add(spinner,BorderLayout.NORTH);
 
-        spinner.addChangeListener((event) ->
+        spinner.addChangeListener(event ->
         {
-            int value = (int) spinner.getValue();
-            limit = value;
+            limit = (int) spinner.getValue();
             refreshItemsPanelDisplay();
         });
         return panel;
@@ -89,12 +84,12 @@ public class AlchItemsPanel extends PluginPanel {
         JPanel comboPanel = new JPanel();
         String [] sortOptions = { "Profit", "Daily Volume", "Buy Limit", "F2P Items"};
         JComboBox<String> tabSelectionCombo  = new JComboBox<>(sortOptions);
-        JLabel tabLabel = new JLabel("Sort By ");
+        JLabel tabLabel = new JLabel("Sort by ");
         comboPanel.setLayout(new BoxLayout(comboPanel, BoxLayout.LINE_AXIS));
         comboPanel.add(tabLabel, BorderLayout.NORTH);
         comboPanel.add(tabSelectionCombo,BorderLayout.NORTH);
 
-        tabSelectionCombo.addItemListener((event) ->
+        tabSelectionCombo.addItemListener(event ->
         {
             sortBy = (String) event.getItem();
             refreshItemsPanelDisplay();
@@ -106,41 +101,11 @@ public class AlchItemsPanel extends PluginPanel {
 
         JButton refreshButton = new JButton("Refresh Prices");
         refreshButton.setFocusPainted(false);
-        refreshButton.addActionListener((event) ->
-        {
-            fetchItemsHandlerASync();
-        });
+        refreshButton.addActionListener(event -> plugin.fetchItemsHandlerASync());
         return refreshButton;
     }
 
-    private void fetchItemsHandlerASync() {
-        itemsContainerPanel.remove(itemsPanel);
-        itemsPanel = buildFetchingItems();
-        itemsContainerPanel.add(itemsPanel);
-        updateUI();
-
-        executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() -> {
-            try {
-                getItems();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        executorService.shutdown();
-    }
-
-    private void getItems() throws Exception {
-        System.out.println("Fetching items...");
-        alchItemsList = itemService.getItemList();
-        System.out.println("Finished fetching items");
-        SwingUtilities.invokeLater(() -> {
-            System.out.println("Refreshing displayed items");
-            refreshItemsPanelDisplay();
-        });
-    }
-
-    private void refreshItemsPanelDisplay() {
+    public void refreshItemsPanelDisplay() {
         itemsContainerPanel.remove(itemsPanel);
         itemsPanel = buildItems(alchItemsList, sortBy, limit);
         itemsContainerPanel.add(itemsPanel);
@@ -160,7 +125,7 @@ public class AlchItemsPanel extends PluginPanel {
             itemListPanel.add(buildErrorItem());
             return itemListPanel;
         }
-        System.out.println("List size: " + alchItemsList.size() + " | Display limit: " + limit);
+        log.debug("List size: " + alchItemsList.size() + " | Display limit: " + limit);
         if(sortBy.equalsIgnoreCase("profit") || sortBy.equalsIgnoreCase("f2p items")) {
             alchItemsList = utilities.sortItemsByProfit(alchItemsList);
         }
@@ -187,16 +152,16 @@ public class AlchItemsPanel extends PluginPanel {
     }
 
     private JPanel buildErrorItem() {
-        return buildSpecialItem("Error fetching items!", "Try refreshing items or report the issue", Color.RED);
+        return buildCustomPanel("Error fetching items!", "Try refreshing items or report the issue", Color.RED);
     }
 
-    private JPanel buildFetchingItems() {
+    public JPanel buildFetchingItems() {
         JPanel itemsList = buildBasePanel();
-        itemsList.add(buildSpecialItem("Please wait", "Scraping and fetching items", Color.WHITE));
+        itemsList.add(buildCustomPanel("Please wait", "Scraping and fetching items", Color.WHITE));
         return itemsList;
     }
 
-    private JPanel buildSpecialItem(String titleText, String messageText, Color color) {
+    private JPanel buildCustomPanel(String titleText, String messageText, Color color) {
         JPanel container = new JPanel();
         container.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         container.setLayout(new BorderLayout());
@@ -270,7 +235,8 @@ public class AlchItemsPanel extends PluginPanel {
 
         String limit = utilities.formatNumber(alchItem.getBuyLimit());
         JLabel buyLimit = new JLabel("Buy Limit: " + limit);
-        buyLimit.setForeground(Color.WHITE);
+        Color buyLimitColour = getColour(alchItem.getBuyLimit());
+        buyLimit.setForeground(buyLimitColour);
         buyLimit.setFont(FontManager.getRunescapeSmallFont());
 
         String volume = "N/A";
@@ -278,8 +244,8 @@ public class AlchItemsPanel extends PluginPanel {
             volume = utilities.formatNumber(alchItem.getDailyVolume());
         }
         JLabel dailyVolume = new JLabel("Daily Volume: " + volume);
-        Color customColour = getColour(alchItem);
-        dailyVolume.setForeground(customColour);
+        Color dailyVolumeColour = getColour(alchItem.getDailyVolume());
+        dailyVolume.setForeground(dailyVolumeColour);
         dailyVolume.setFont(FontManager.getRunescapeSmallFont());
 
         textContainer.add(itemName);
@@ -292,19 +258,30 @@ public class AlchItemsPanel extends PluginPanel {
         return container;
     }
 
-    private static Color getColour(AlchItem alchItem) {
+    private Color getColour(int number) {
         Color customColour = Color.GREEN;
-        int volume = alchItem.getDailyVolume();
-        if(volume < 1000) {
+        if(number < 800) {
             customColour = Color.RED;
         }
-        if(volume < 5000 && volume >= 1000) {
+        if(number < 5000 && number >= 800) {
             customColour = Color.YELLOW;
         }
-        if(volume == -1) {
+        if(number == -1) {
             customColour = Color.WHITE;
         }
         return customColour;
     }
 
+    public JPanel getItemsContainerPanel() {
+        return itemsContainerPanel;
+    }
+    public JPanel getItemsPanel() {
+        return itemsPanel;
+    }
+    public void setItemsPanel(JPanel itemsPanel) {
+        this.itemsPanel = itemsPanel;
+    }
+    public void setAlchItemsList(List<AlchItem> alchItemsList) {
+        this.alchItemsList = alchItemsList;
+    }
 }

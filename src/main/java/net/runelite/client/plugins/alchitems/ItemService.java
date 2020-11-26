@@ -5,26 +5,31 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class ItemService {
 
     @Inject
     Utilities utilities;
+    private WebClient webClient;
 
-    public List<AlchItem> getItemList() throws Exception {
-        NatureRune natureRune = getNatureRune("https://oldschool.runescape.wiki/w/Nature_rune");
-        return scrapeDataFromTable("https://oldschool.runescape.wiki/w/RuneScape:Grand_Exchange_Market_Watch/Alchemy", natureRune.getGePrice());
+    public ItemService() {
+        this.webClient = new WebClient();
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setJavaScriptEnabled(false);
+        webClient.getOptions().setDownloadImages(false);
+        webClient.getOptions().setGeolocationEnabled(false);
     }
 
     public List<AlchItem> scrapeDataFromTable(String url, int natureRunePrice) throws Exception {
         List<AlchItem> results = new ArrayList<>();
         try {
-            HtmlPage page = getWebPage(url);
+            HtmlPage page = webClient.getPage(url);
             List<Object> object = page.getByXPath("//*[@id=\"mw-content-text\"]/div/table[1]");
             HtmlTable table = (HtmlTable) object.get(0);
 
@@ -40,24 +45,17 @@ public class ItemService {
                 boolean members = memberItem.equalsIgnoreCase("Free-to-play") ? false : true;
                 AlchItem alchItem = new AlchItem(itemName, gePrice, highAlchPrice, buyLimit, members, dailyVolume, natureRunePrice);
                 results.add(alchItem);
-                //System.out.println("Item fetched: " + alchItem.getItemName());
+                //log.debug("Item fetched: " + alchItem.getItemName());
             }
-        } catch (Exception e) {
-
+        } catch (Exception exception) {
+            throw(exception);
         }
         return results;
     }
 
-    private HtmlPage getWebPage(String url) throws IOException {
-        WebClient client = new WebClient();
-        client.getOptions().setCssEnabled(false);
-        client.getOptions().setJavaScriptEnabled(false);
-        return client.getPage(url);
-    }
-
     private int getVolumeOfItem(String itemName) throws Exception {
         try {
-            HtmlPage page = getWebPage("https://oldschool.runescape.wiki/w/" + itemName);
+            HtmlPage page = webClient.getPage("https://oldschool.runescape.wiki/w/" + itemName);
             DomElement volumeElement = page.getFirstByXPath("//*[@id=\"mw-content-text\"]/div/table[1]/tbody/tr[29]/td");
             if(volumeElement.getFirstChild() == null) {
                 volumeElement = page.getFirstByXPath("//*[@id=\"mw-content-text\"]/div/table[1]/tbody/tr[28]/td");
@@ -70,7 +68,7 @@ public class ItemService {
     }
 
     private NatureRune getNatureRune(String url) throws Exception {
-        HtmlPage page = getWebPage(url);
+        HtmlPage page = webClient.getPage(url);
 
         DomElement itemNameElement = page.getElementById("firstHeading");
         String itemName = itemNameElement.getVisibleText();
@@ -83,17 +81,35 @@ public class ItemService {
         String buyLimitString = buyLimitElement.getVisibleText();
         int buyLimit = utilities.formatStringToInt(buyLimitString);
 
-        System.out.println("Current nature rune price: " + gePrice + " buy limit: " + buyLimit);
-        NatureRune natureRune = new NatureRune(itemName, gePrice, buyLimit);
-        return natureRune;
+        log.debug("Current nature rune price: " + gePrice + " buy limit: " + buyLimit);
+        return new NatureRune(itemName, gePrice, buyLimit);
+    }
+
+    public List<AlchItem> getItemList() throws Exception {
+        NatureRune natureRune = getNatureRune("https://oldschool.runescape.wiki/w/Nature_rune");
+        return scrapeDataFromTable("https://oldschool.runescape.wiki/w/RuneScape:Grand_Exchange_Market_Watch/Alchemy", natureRune.getGePrice());
+    }
+
+    public List<AlchItem> getMockItemListEmpty() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 
     public List<AlchItem> getMockItemList() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         List<AlchItem> arrayList = new ArrayList<>();
         AlchItem alchItem = new AlchItem("Rune Dagger", 5000,5200, 400, false, 470, 193);
         AlchItem alchItem2 = new AlchItem("Rune Crossbow", 50000,52000, 2000, true, 3000, 193);
         AlchItem alchItem3 = new AlchItem("Rune Scimitar", 28000,3000, 1000, false, 44000, 193);
-        AlchItem alchItem4 = new AlchItem("Rune Bolts", 200,405, 4000, true, 157003, 193);
+        AlchItem alchItem4 = new AlchItem("Rune Bolts", 200,405, 40000, true, 157003, 193);
         arrayList.add(alchItem);
         arrayList.add(alchItem2);
         arrayList.add(alchItem3);
