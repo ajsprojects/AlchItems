@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.alchitems;
+package alchitems;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.DomElement;

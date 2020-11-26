@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.alchitems;
+package alchitems;
 
 import java.text.DecimalFormat;
 import java.util.Collections;

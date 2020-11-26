@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.alchitems;
+package alchitems;
 
 import lombok.Getter;
 
