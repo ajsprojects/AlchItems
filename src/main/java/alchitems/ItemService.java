@@ -16,7 +16,9 @@ public class ItemService {
     public List<AlchItem> getItemList() {
         List<AlchItem> results = new ArrayList<>();
         try {
-            Document doc = Jsoup.connect("https://oldschool.runescape.wiki/w/RuneScape:Grand_Exchange_Market_Watch/Alchemy").get();
+            Document doc = Jsoup.connect("https://oldschool.runescape.wiki/w/RuneScape:Grand_Exchange_Market_Watch/Alchemy")
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36")
+                    .get();
 
             Element table = doc.select(".wikitable").get(0);
 
