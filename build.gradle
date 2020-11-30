@@ -23,7 +23,7 @@ dependencies {
 	testImplementation group: 'net.runelite', name:'client', version: runeLiteVersion, {
 		exclude group: 'ch.qos.logback', module: 'logback-classic'
 	}
-	compile group: 'net.sourceforge.htmlunit', name: 'htmlunit', version: '2.45.0'
+	compile group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
 }
 
 group = 'com.example'

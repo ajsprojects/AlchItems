@@ -13,11 +13,11 @@ public class AlchItem {
     private boolean members;
     private int dailyVolume;
 
-    public AlchItem(String itemName, int gePrice, int highAlchPrice, int buyLimit, boolean members, int dailyVolume, int natureRunePrice) {
+    public AlchItem(String itemName, int gePrice, int highAlchPrice, int buyLimit, boolean members, int dailyVolume, int profit) {
         this.itemName = itemName;
         this.gePrice = gePrice;
         this.highAlchPrice = highAlchPrice;
-        this.profit = highAlchPrice - (gePrice + natureRunePrice);
+        this.profit = profit;
         this.buyLimit = buyLimit;
         this.members = members;
         this.dailyVolume = dailyVolume;

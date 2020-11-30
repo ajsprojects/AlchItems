@@ -1,6 +1,5 @@
 package alchitems;
 
-import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -19,7 +18,6 @@ import java.util.concurrent.Executors;
         description = "Shows you good items to alch",
         tags = {"alching", "high alch", "alch"}
 )
-@Slf4j
 public class AlchItemsPlugin extends Plugin
 {
     @Inject
@@ -33,10 +31,10 @@ public class AlchItemsPlugin extends Plugin
 
     private AlchItemsPanel panel;
     private NavigationButton navButton;
-    private ExecutorService executorService;
+    ExecutorService executorService;
 
     @Override
-    protected void startUp() {
+    protected void startUp() throws Exception {
         final BufferedImage icon = ImageUtil.getResourceStreamFromClass(getClass(), "icon.png");
         this.panel = injector.getInstance(AlchItemsPanel.class);
 
@@ -52,14 +50,14 @@ public class AlchItemsPlugin extends Plugin
     }
 
     @Override
-    protected void shutDown() {
+    protected void shutDown() throws Exception {
         executorService.shutdownNow();
         executorService = null;
         clientToolbar.removeNavigation(navButton);
     }
 
     public void fetchItemsHandlerASync() {
-        log.debug("Setting panel to loading items");
+        System.out.println("Setting panel to loading items");
         panel.getItemsContainerPanel().remove(panel.getItemsPanel());
         panel.setItemsPanel(panel.buildFetchingItems());
         panel.getItemsContainerPanel().add(panel.getItemsPanel());
@@ -77,16 +75,12 @@ public class AlchItemsPlugin extends Plugin
     }
 
     private void getItems() throws Exception {
-        log.debug("Fetching items...");
+        System.out.println("Fetching items...");
         panel.setAlchItemsList(itemService.getItemList());
-        log.debug("Finished fetching items");
+        System.out.println("Finished fetching items");
         SwingUtilities.invokeLater(() -> {
-            log.debug("Refreshing displayed items");
+            System.out.println("Refreshing displayed items");
             panel.refreshItemsPanelDisplay();
         });
     }
-    /*@Provides
-    AlchItemsPluginConfig getConfig(ConfigManager configManager) {
-        return configManager.getConfig(AlchItemsPluginConfig.class);
-    }*/
 }

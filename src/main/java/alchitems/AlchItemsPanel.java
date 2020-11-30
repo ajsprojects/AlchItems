@@ -23,7 +23,7 @@ public class AlchItemsPanel extends PluginPanel {
     private JPanel spinner;
     private JButton refreshButton;
     private JPanel comboBox;
-    private int limit = 50;
+    private int limit = 40;
     private List<AlchItem> alchItemsList;
 
     @Inject
@@ -82,7 +82,7 @@ public class AlchItemsPanel extends PluginPanel {
 
     public JPanel buildComboBox() {
         JPanel comboPanel = new JPanel();
-        String [] sortOptions = { "Profit", "Daily Volume", "Buy Limit", "F2P Items"};
+        String [] sortOptions = { "Profit", "Buy Limit", "F2P Items"};
         JComboBox<String> tabSelectionCombo  = new JComboBox<>(sortOptions);
         JLabel tabLabel = new JLabel("Sort by ");
         comboPanel.setLayout(new BoxLayout(comboPanel, BoxLayout.LINE_AXIS));
@@ -194,7 +194,7 @@ public class AlchItemsPanel extends PluginPanel {
 
         JPanel textContainer = new JPanel();
         textContainer.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        textContainer.setLayout(new GridLayout(3, 1));
+        textContainer.setLayout(new GridLayout(4, 0));
         textContainer.setBorder(new EmptyBorder(2, 2, 2, 2));
 
         container.addMouseListener(new MouseAdapter()
@@ -239,21 +239,20 @@ public class AlchItemsPanel extends PluginPanel {
         buyLimit.setForeground(buyLimitColour);
         buyLimit.setFont(FontManager.getRunescapeSmallFont());
 
-        String volume = "N/A";
+        /*String volume = "N/A";
         if(alchItem.getDailyVolume() != -1) {
             volume = utilities.formatNumber(alchItem.getDailyVolume());
         }
         JLabel dailyVolume = new JLabel("Daily Volume: " + volume);
         Color dailyVolumeColour = getColour(alchItem.getDailyVolume());
         dailyVolume.setForeground(dailyVolumeColour);
-        dailyVolume.setFont(FontManager.getRunescapeSmallFont());
+        dailyVolume.setFont(FontManager.getRunescapeSmallFont());*/
 
         textContainer.add(itemName);
-        textContainer.add(new JLabel(""));
-        textContainer.add(itemPrice);
         textContainer.add(profit);
+        textContainer.add(itemPrice);
         textContainer.add(buyLimit);
-        textContainer.add(dailyVolume);
+        //textContainer.add(dailyVolume);
         container.add(textContainer);
         return container;
     }
