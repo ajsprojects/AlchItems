@@ -9,7 +9,7 @@ public class Utilities {
 
     public int formatStringToInt(String string) throws Exception {
         string = string.replaceAll(",", "");
-        string = string.replaceAll(" coins", "");
+        //string = string.replaceAll("coins", "");
         return Integer.parseInt(string);
     }
 

@@ -1,4 +1,5 @@
 package alchitems;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -8,6 +9,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class ItemService {
 
     @Inject
@@ -17,7 +19,7 @@ public class ItemService {
         List<AlchItem> results = new ArrayList<>();
         try {
             Document doc = Jsoup.connect("https://oldschool.runescape.wiki/w/RuneScape:Grand_Exchange_Market_Watch/Alchemy")
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36")
+                    .userAgent("AlchItemsPlugin https://github.com/ajsprojects/AlchItemsPlugin")
                     .get();
 
             Element table = doc.select(".wikitable").get(0);
@@ -35,7 +37,7 @@ public class ItemService {
                     boolean members = column.get(8).attributes().dataset().values().contains("1");
                     AlchItem alchItem = new AlchItem(itemName, gePrice, highAlchPrice, buyLimit, members, -1, profit);
                     results.add(alchItem);
-                    //System.out.println("Item fetched: " + alchItem.getItemName());
+                    //log.info("Item fetched: " + alchItem.getItemName());
                 }
             }
 

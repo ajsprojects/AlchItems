@@ -63,7 +63,7 @@ public class AlchItemsPanel extends PluginPanel {
 
     public JPanel buildSpinner() {
         JPanel panel = new JPanel();
-        SpinnerModel sm = new SpinnerNumberModel(limit, 0, 500, 1); //default value,lower bound,upper bound,increment by
+        SpinnerModel sm = new SpinnerNumberModel(limit, 0, 500, 1);
         JSpinner spinner = new JSpinner(sm);
         spinner.setValue(limit);
         spinner.setSize(80,20);
@@ -98,8 +98,7 @@ public class AlchItemsPanel extends PluginPanel {
     }
 
     public JButton buildRefreshButton() {
-
-        JButton refreshButton = new JButton("Refresh Prices");
+        JButton refreshButton = new JButton("Refresh items");
         refreshButton.setFocusPainted(false);
         refreshButton.addActionListener(event -> plugin.fetchItemsHandlerASync());
         return refreshButton;
@@ -122,10 +121,11 @@ public class AlchItemsPanel extends PluginPanel {
     private JPanel buildItems(List<AlchItem> alchItemsList, String sortBy, int limit) {
         JPanel itemListPanel = buildBasePanel();
         if(alchItemsList == null || alchItemsList.isEmpty()) {
+            log.info("ERROR: Item list is empty");
             itemListPanel.add(buildErrorItem());
             return itemListPanel;
         }
-        log.debug("List size: " + alchItemsList.size() + " | Display limit: " + limit);
+        log.info("List size: " + alchItemsList.size() + " | Display limit: " + limit);
         if(sortBy.equalsIgnoreCase("profit") || sortBy.equalsIgnoreCase("f2p items")) {
             alchItemsList = utilities.sortItemsByProfit(alchItemsList);
         }
@@ -152,16 +152,16 @@ public class AlchItemsPanel extends PluginPanel {
     }
 
     private JPanel buildErrorItem() {
-        return buildCustomPanel("Error fetching items!", "Try refreshing items or report the issue", Color.RED);
+        return buildCustomPanel("Error fetching items", "Try refreshing items again", "If the issue persists please report it", Color.RED);
     }
 
     public JPanel buildFetchingItems() {
         JPanel itemsList = buildBasePanel();
-        itemsList.add(buildCustomPanel("Please wait", "Scraping and fetching items", Color.WHITE));
+        itemsList.add(buildCustomPanel("Please wait", "Fetching items", "", Color.WHITE));
         return itemsList;
     }
 
-    private JPanel buildCustomPanel(String titleText, String messageText, Color color) {
+    private JPanel buildCustomPanel(String titleText, String lineOne, String lineTwo, Color color) {
         JPanel container = new JPanel();
         container.setBackground(ColorScheme.DARKER_GRAY_COLOR);
         container.setLayout(new BorderLayout());
@@ -169,17 +169,21 @@ public class AlchItemsPanel extends PluginPanel {
 
         JPanel textContainer = new JPanel();
         textContainer.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        textContainer.setLayout(new GridLayout(2, 1));
+        textContainer.setLayout(new BorderLayout(2, 2));
         textContainer.setBorder(new EmptyBorder(2, 2, 2, 2));
 
         JLabel title = new JLabel(titleText);
         title.setForeground(color);
         title.setFont(FontManager.getRunescapeBoldFont());
-        JLabel message = new JLabel(messageText);
-        message.setForeground(color);
-        message.setFont(FontManager.getRunescapeSmallFont());
-        textContainer.add(title);
-        textContainer.add(message);
+        JLabel lineOneText = new JLabel(lineOne);
+        lineOneText.setForeground(color);
+        lineOneText.setFont(FontManager.getRunescapeSmallFont());
+        JLabel lineTwoText = new JLabel(lineTwo);
+        lineTwoText.setForeground(color);
+        lineTwoText.setFont(FontManager.getRunescapeSmallFont());
+        textContainer.add(title, BorderLayout.NORTH);
+        textContainer.add(lineOneText, BorderLayout.CENTER);
+        textContainer.add(lineTwoText, BorderLayout.SOUTH);
         container.add(textContainer);
         return container;
     }

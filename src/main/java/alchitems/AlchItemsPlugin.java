@@ -1,5 +1,6 @@
 package alchitems;
 
+import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -18,6 +19,7 @@ import java.util.concurrent.Executors;
         description = "Shows you good items to alch",
         tags = {"alching", "high alch", "alch"}
 )
+@Slf4j
 public class AlchItemsPlugin extends Plugin
 {
     @Inject
@@ -57,7 +59,7 @@ public class AlchItemsPlugin extends Plugin
     }
 
     public void fetchItemsHandlerASync() {
-        System.out.println("Setting panel to loading items");
+        log.info("Setting panel to loading items");
         panel.getItemsContainerPanel().remove(panel.getItemsPanel());
         panel.setItemsPanel(panel.buildFetchingItems());
         panel.getItemsContainerPanel().add(panel.getItemsPanel());
@@ -74,12 +76,12 @@ public class AlchItemsPlugin extends Plugin
         executorService.shutdown();
     }
 
-    private void getItems() throws Exception {
-        System.out.println("Fetching items...");
+    private void getItems() {
+        log.info("Fetching items...");
         panel.setAlchItemsList(itemService.getItemList());
-        System.out.println("Finished fetching items");
+        log.info("Finished fetching items");
         SwingUtilities.invokeLater(() -> {
-            System.out.println("Refreshing displayed items");
+            log.info("Refreshing displayed items");
             panel.refreshItemsPanelDisplay();
         });
     }
